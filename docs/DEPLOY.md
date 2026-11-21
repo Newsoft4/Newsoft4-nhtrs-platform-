@@ -26,7 +26,7 @@
 - Backups, encryption-at-rest for host/volumes, patching and monitoring. Treat Docker group access as root-equivalent.
 - A deployment user with ownership of `/opt/nhtrs` (create once as administrator with `sudo mkdir -p /opt/nhtrs && sudo chown "$USER":"$USER" /opt/nhtrs`).
 - Secure `.env` stored only at `/opt/nhtrs/.env` on the VPS, created with `python3 scripts/init_env.py` after installing Python `cryptography` (or generate it locally then transfer securely).
-- Add `NHTRS_DOMAIN=staging.example.ng` to `.env`; replace with the exact domain you control. Do not use `.ng` example literally.
+- Add `NHTRS_DOMAIN=nhtrs.newsoftplc.ng` to `.env`.
 
 ## 3. Initial staging installation
 
@@ -36,12 +36,12 @@ cd /opt/nhtrs
 python3 -m venv .venv
 .venv/bin/pip install cryptography
 .venv/bin/python scripts/init_env.py       # prints initial password once; save securely
-printf '\nNHTRS_DOMAIN=staging.example.ng\n' >> .env
+printf '\nNHTRS_DOMAIN=nhtrs.newsoftplc.ng\n' >> .env
 chmod 600 .env
 # Start single-node HTTPS deployment
 docker compose -f compose.yaml -f compose.prod.yaml config -q
 docker compose -f compose.yaml -f compose.prod.yaml up -d --build --wait
-curl --fail --show-error https://staging.example.ng/api/health
+curl --fail --show-error https://nhtrs.newsoftplc.ng/api/health
 ```
 
 `compose.prod.yaml` adds a Caddy HTTPS proxy with automatic certificate issuance/renewal. Certificates require correctly pointed DNS and reachable ports 80/443. The app keeps its internal HTTP port available only at `127.0.0.1:8000` on the host. The remote service has secure cookies and enforces its configured HTTPS origin.
