@@ -1,0 +1,18 @@
+# Credentials and local environments
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+*.db
+*.sqlite3
+*.log
+.DS_Store
+.coverage
+htmlcov/

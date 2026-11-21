@@ -1,0 +1,38 @@
+name: Deploy NHTRS pilot to VPS
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: nhtrs-staging-deploy
+  cancel-in-progress: false
+jobs:
+  deploy:
+    # Configure the 'staging' environment with required reviewers in GitHub.
+    environment: staging
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure pinned SSH host identity
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+          test -s ~/.ssh/id_ed25519 && test -s ~/.ssh/known_hosts
+      - name: Transfer source and deploy with Compose
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+        run: |
+          set -euo pipefail
+          test -n "$DEPLOY_HOST" && test -n "$DEPLOY_USER"
+          # .env and all secrets remain server-side; only checked-out code is transferred.
+          tar --exclude=.git --exclude=.env --exclude='.env.*' -czf - . \
+            | ssh -o BatchMode=yes "$DEPLOY_USER@$DEPLOY_HOST" \
+              'set -eu; mkdir -p /opt/nhtrs; cd /opt/nhtrs; tar -xzf -; test -f .env; docker compose -f compose.yaml -f compose.prod.yaml config -q; docker compose -f compose.yaml -f compose.prod.yaml up --build -d --wait'
