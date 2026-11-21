@@ -39,10 +39,10 @@ For a permitted HTTPS pilot, update `.env` as follows and restart the API:
 
 ```
 COOKIE_SECURE=true
-ALLOWED_ORIGIN=https://nhtrs.example.ng
+ALLOWED_ORIGIN=https://nhtrs.newsoftplc.ng
 ```
 
-Configure DNS and reverse proxy, then verify TLS, cookies, WebSocket proxying, firewall rules and backups before uploading non-fictional records. Use the actual hostname you own instead of the example.
+Configure DNS and reverse proxy, then verify TLS, cookies, WebSocket proxying, firewall rules and backups before uploading non-fictional records. The pilot hostname is `nhtrs.newsoftplc.ng`.
 
 ## Main workflows
 
